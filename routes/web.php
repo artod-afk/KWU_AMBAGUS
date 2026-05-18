@@ -10,7 +10,9 @@ use App\Http\Controllers\FinanceReportController;
 use App\Http\Controllers\CashierController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () { return view('welcome'); });
+Route::get('/', function () {
+    return redirect()->route('login');
+});
 
 // Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])
