@@ -1,0 +1,33 @@
+CREATE TABLE IF NOT EXISTS `transactions` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `code` VARCHAR(255) NOT NULL UNIQUE,
+    `total_amount` DECIMAL(15,2) NOT NULL DEFAULT 0,
+    `paid_amount` DECIMAL(15,2) NOT NULL DEFAULT 0,
+    `change_amount` DECIMAL(15,2) NOT NULL DEFAULT 0,
+    `total_items` INT NOT NULL DEFAULT 0,
+    `notes` TEXT NULL,
+    `created_at` TIMESTAMP NULL,
+    `updated_at` TIMESTAMP NULL
+);
+
+CREATE TABLE IF NOT EXISTS `transaction_items` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `transaction_id` BIGINT UNSIGNED NOT NULL,
+    `product_id` BIGINT UNSIGNED NOT NULL,
+    `product_name` VARCHAR(255) NOT NULL,
+    `price` DECIMAL(15,2) NOT NULL,
+    `quantity` INT NOT NULL,
+    `subtotal` DECIMAL(15,2) NOT NULL,
+    `created_at` TIMESTAMP NULL,
+    `updated_at` TIMESTAMP NULL,
+
+    CONSTRAINT `fk_transaction`
+        FOREIGN KEY (`transaction_id`)
+        REFERENCES `transactions`(`id`)
+        ON DELETE CASCADE,
+
+    CONSTRAINT `fk_product`
+        FOREIGN KEY (`product_id`)
+        REFERENCES `products`(`id`)
+        ON DELETE CASCADE
+);
