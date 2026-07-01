@@ -249,6 +249,3 @@ Beberapa ide untuk pengembangan lebih lanjut:
 - Integrasi dengan sistem kasir
 
 ---
-
-**Dibuat pada**: 18 Mei 2026
-**Developer**: Kiro AI Assistant
