@@ -19,14 +19,40 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])->name('dashboard');
 
 // Stock History
-Route::get('/stock-history', function () {
-    $histories = \App\Models\StockHistory::with('product')->latest()->get();
+Route::get('/stock-history', function (\Illuminate\Http\Request $request) {
+    $query = \App\Models\StockHistory::with('product')->latest();
+
+    if ($request->search) {
+        $query->whereHas('product', fn($q) => $q->where('name', 'like', '%'.$request->search.'%'));
+    }
+    if ($request->type) {
+        $query->where('type', $request->type);
+    }
+    if ($request->source) {
+        $query->where('source', $request->source);
+    }
+    if ($request->date) {
+        $query->whereDate('created_at', $request->date);
+    }
+
+    $histories = $query->paginate(20);
     return view('products.history', compact('histories'));
 })->middleware(['auth'])->name('stock.history');
 
 // Stok Barang
 Route::middleware(['auth'])->group(function () {
-    Route::resource('products', ProductController::class);
+    // Landing page stok (dashboard stok)
+    Route::get('/products', [ProductController::class, 'landing'])->name('products.index');
+    // Tabel stok barang (halaman lama)
+    Route::get('/products/list', [ProductController::class, 'index'])->name('products.list');
+    // CRUD routes manual (hindari konflik dengan 'list')
+    Route::get('/products/create',        [ProductController::class, 'create'])->name('products.create');
+    Route::post('/products',              [ProductController::class, 'store'])->name('products.store');
+    Route::get('/products/{product}/edit',[ProductController::class, 'edit'])->name('products.edit');
+    Route::put('/products/{product}',     [ProductController::class, 'update'])->name('products.update');
+    Route::delete('/products/{product}',  [ProductController::class, 'destroy'])->name('products.destroy');
+    Route::get('/products/{product}',     [ProductController::class, 'show'])->name('products.show');
+
     Route::resource('categories', CategoryController::class);
 });
 
@@ -38,6 +64,7 @@ Route::middleware(['auth'])->prefix('cashier')->group(function () {
     Route::post('/checkout',     [CashierController::class, 'checkout'])->name('cashier.checkout');
     Route::get('/log',           [CashierController::class, 'log'])->name('cashier.log');
     Route::get('/detail/{transaction}', [CashierController::class, 'detail'])->name('cashier.detail');
+    Route::get('/income-history', [CashierController::class, 'incomeHistory'])->name('cashier.income.history');
 });
 
 // Keuangan

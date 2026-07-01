@@ -1,33 +1,192 @@
-CREATE TABLE IF NOT EXISTS `transactions` (
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `code` VARCHAR(255) NOT NULL UNIQUE,
-    `total_amount` DECIMAL(15,2) NOT NULL DEFAULT 0,
-    `paid_amount` DECIMAL(15,2) NOT NULL DEFAULT 0,
-    `change_amount` DECIMAL(15,2) NOT NULL DEFAULT 0,
-    `total_items` INT NOT NULL DEFAULT 0,
-    `notes` TEXT NULL,
-    `created_at` TIMESTAMP NULL,
-    `updated_at` TIMESTAMP NULL
-);
+Saya ingin melakukan revisi besar pada tampilan awal website toko sembako Laravel yang sudah ada.
 
-CREATE TABLE IF NOT EXISTS `transaction_items` (
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `transaction_id` BIGINT UNSIGNED NOT NULL,
-    `product_id` BIGINT UNSIGNED NOT NULL,
-    `product_name` VARCHAR(255) NOT NULL,
-    `price` DECIMAL(15,2) NOT NULL,
-    `quantity` INT NOT NULL,
-    `subtotal` DECIMAL(15,2) NOT NULL,
-    `created_at` TIMESTAMP NULL,
-    `updated_at` TIMESTAMP NULL,
+Saat ini setelah login user langsung masuk ke halaman stok barang seperti tampilan lama.
 
-    CONSTRAINT `fk_transaction`
-        FOREIGN KEY (`transaction_id`)
-        REFERENCES `transactions`(`id`)
-        ON DELETE CASCADE,
+Saya ingin menambahkan LANDING PAGE / HOME DASHBOARD terlebih dahulu sebelum masuk ke halaman stok barang.
 
-    CONSTRAINT `fk_product`
-        FOREIGN KEY (`product_id`)
-        REFERENCES `products`(`id`)
-        ON DELETE CASCADE
-);
+Konsep revisi mengacu seperti gambar referensi yang saya berikan.
+
+==================================================
+KONSEP UTAMA
+==================================================
+
+Alur baru:
+Login → Landing Page Dashboard → landing page dashboard stok  → Baru masuk ke halaman stok barang 
+
+Jadi halaman stok barang tidak langsung tampil pertama kali.
+
+==================================================
+LANDING PAGE DASHBOARD
+==================================================
+
+Buat landing page/dashboard modern dengan tema:
+- dark navy
+- orange hangat
+- sedikit abu abu soft
+- modern clean UI
+- responsive
+
+==================================================
+HEADER
+==================================================
+
+Di bagian atas:
+- logo/icon toko
+- nama:
+  "Sistem Toko Sembako"
+- profil admin di kanan atas
+
+Navbar dibuat:
+- clean
+- modern
+- shadow halus
+- sticky top
+
+==================================================
+CARD HISTORY LOG BERGERAK (SLIDE)
+==================================================
+
+Di bagian atas dashboard setelah navbar, buat CARD BESAR yang menampilkan:
+
+- log history barang masuk
+- barang keluar
+- edit data barang
+- update stok
+- transaksi terbaru
+
+Data diambil langsung dari database/log transaksi.
+
+==================================================
+EFEK SLIDE / AUTO SCROLL
+==================================================
+
+History log harus tampil:
+- bergerak otomatis
+- slide horizontal / carousel
+- data tampil bergantian
+- auto refresh ringan
+- animasi smooth
+
+Contoh isi:
+- "Admin menambahkan stok Rokok Surya +10"
+- "Barang Aqua terjual 3 pcs"
+- "Harga Mie Instan diperbarui"
+- "Produk baru berhasil ditambahkan"
+
+Tampilkan:
+- icon aktivitas
+- waktu transaksi
+- nama admin
+- jenis aktivitas
+
+==================================================
+DETAIL LOG
+==================================================
+
+Tambahkan tombol:
+"Detail Log"
+
+Saat diklik:
+- membuka halaman histori lengkap
+- ada filter
+- search
+- pagination
+
+==================================================
+CARD MENU DASHBOARD
+==================================================
+
+Di bawah history log, buat card menu utama.
+
+CARD UTAMA:
+1. Stok Barang
+2. Kasir Penjualan
+3. Kelola Kategori
+
+Card dibuat:
+- modern
+- hover effect
+- icon besar
+- gradient halus
+- shadow modern
+- rounded corner
+
+==================================================
+AKSES HALAMAN STOK BARANG
+==================================================
+
+Halaman stok barang lama (seperti tampilan sebelumnya) sekarang tidak langsung tampil.
+
+User harus:
+- klik card "Stok Barang"
+- baru masuk ke halaman tabel stok barang lama
+
+==================================================
+CARD STOK BARANG
+==================================================
+
+Card stok barang berisi:
+Judul:
+"Stok Barang"
+
+Deskripsi:
+"Kelola data barang, stok, harga, dan kategori"
+
+Icon:
+box/package modern
+
+Tombol:
+"Lihat Stok"
+
+==================================================
+STATISTIK DASHBOARD
+==================================================
+
+Tambahkan card statistik kecil:
+- total barang
+- total kategori
+- total transaksi hari ini
+- stok menipis
+
+Gunakan desain modern minimalis.
+
+==================================================
+UI / UX
+==================================================
+
+Fokus:
+- tidak kosong
+- lebih hidup
+- modern
+- smooth
+- nyaman digunakan
+- layout simetris
+- spacing rapi
+
+Gunakan:
+- animasi ringan
+- transisi halus
+- icon modern
+- efek glow halus orange/biru
+
+==================================================
+RESPONSIVE
+==================================================
+
+Pastikan:
+- desktop bagus
+- mobile tetap rapi
+- tablet tetap nyaman
+
+==================================================
+KETENTUAN TEKNIS
+==================================================
+
+- Jangan merusak fitur lama
+- Halaman stok barang lama tetap dipakai
+- Tambahkan landing page baru
+- Gunakan Laravel MVC yang rapi
+- Gunakan Bootstrap/Tailwind yang sudah ada
+- Gunakan struktur komponen reusable jika memungkinkan
+- Data history diambil dari database secara dinamis
+- Pastikan performa tetap ringan

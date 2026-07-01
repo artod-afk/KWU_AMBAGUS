@@ -95,7 +95,7 @@
 
             <div style="display:flex; gap:1rem; flex-wrap:wrap;">
                 <button type="submit" class="btn-orange">💾 Update Barang</button>
-                <a href="{{ route('products.index') }}" class="btn-gray">Batal</a>
+                <a href="{{ route('products.list') }}" class="btn-gray">Batal</a>
             </div>
         </form>
     </div>

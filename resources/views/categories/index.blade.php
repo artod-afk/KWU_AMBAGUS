@@ -22,7 +22,7 @@
     <div class="page-header">
         <h1 class="page-title">🏷️ Kelola Kategori</h1>
         <div style="display:flex; gap:0.75rem;">
-            <a href="{{ route('products.index') }}" class="btn-gray">← Kembali ke Stok</a>
+            <a href="{{ route('products.list') }}" class="btn-gray">← Kembali ke Stok</a>
             <a href="{{ route('categories.create') }}" class="btn-orange">+ Tambah Kategori</a>
         </div>
     </div>

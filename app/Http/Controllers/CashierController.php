@@ -160,12 +160,14 @@ class CashierController extends Controller
                 // Kurangi stok
                 $data['product']->decrement('stock', $data['quantity']);
 
-                // Catat stock history
-                StockHistory::create([
-                    'product_id' => $data['product']->id,
-                    'type'       => 'keluar',
-                    'quantity'   => $data['quantity'],
-                ]);
+                // Catat stock history dengan keterangan penjualan
+                StockHistory::log(
+                    $data['product']->id,
+                    'keluar',
+                    $data['quantity'],
+                    "Terjual via kasir — Transaksi {$transaction->code}",
+                    'sale'
+                );
             }
 
             DB::commit();
@@ -210,6 +212,60 @@ class CashierController extends Controller
         $transactions = $query->latest()->paginate(15);
 
         return view('cashier.log', compact('transactions'));
+    }
+
+    /**
+     * History Pemasukan Harian — kotor & bersih per hari
+     */
+    public function incomeHistory(Request $request)
+    {
+        // Ambil semua transaksi, group by tanggal
+        $query = Transaction::with('items.product');
+
+        if ($request->start_date) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->end_date) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        $transactions = $query->latest()->get();
+
+        // Group by tanggal, hitung kotor & bersih per hari
+        $dailySummary = $transactions->groupBy(fn($t) => $t->created_at->format('Y-m-d'))
+            ->map(function ($dayTrx, $date) {
+                $grossIncome = $dayTrx->sum('total_amount');
+
+                // Hitung pemasukan bersih: (harga jual - harga beli) × qty
+                $netIncome = 0;
+                foreach ($dayTrx as $trx) {
+                    foreach ($trx->items as $item) {
+                        $product = $item->product;
+                        if ($product) {
+                            $purchasePrice = $product->purchase_price > 0 ? $product->purchase_price : 0;
+                            $netIncome    += ($item->price - $purchasePrice) * $item->quantity;
+                        }
+                    }
+                }
+
+                return [
+                    'date'         => $date,
+                    'trx_count'    => $dayTrx->count(),
+                    'total_items'  => $dayTrx->sum('total_items'),
+                    'gross_income' => $grossIncome,
+                    'net_income'   => $netIncome,
+                    'transactions' => $dayTrx,
+                ];
+            })
+            ->sortKeysDesc();
+
+        // Total keseluruhan
+        $totalGross = $dailySummary->sum('gross_income');
+        $totalNet   = $dailySummary->sum('net_income');
+
+        return view('cashier.income_history', compact(
+            'dailySummary', 'totalGross', 'totalNet'
+        ));
     }
 
     /**

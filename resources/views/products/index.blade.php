@@ -40,6 +40,7 @@
     <div class="page-header">
         <h1 class="page-title">📦 Stok Barang</h1>
         <div class="header-actions">
+            <a href="{{ route('products.index') }}" class="btn-gray">← Kembali</a>
             <a href="{{ route('categories.index') }}" class="btn-gray">🏷️ Kelola Kategori</a>
             <a href="{{ route('products.create') }}" class="btn-orange">+ Tambah Barang</a>
         </div>
@@ -50,7 +51,7 @@
     @endif
 
     <!-- Search & Filter -->
-    <form method="GET" action="{{ route('products.index') }}" class="search-box">
+    <form method="GET" action="{{ route('products.list') }}" class="search-box">
         <input type="text"
                name="search"
                class="search-input"
@@ -66,7 +67,7 @@
         </select>
         <button type="submit" class="btn-orange">Cari</button>
         @if(request('search') || request('category_id'))
-            <a href="{{ route('products.index') }}" class="btn-gray">Reset</a>
+            <a href="{{ route('products.list') }}" class="btn-gray">Reset</a>
         @endif
     </form>
 

@@ -9,6 +9,45 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    /**
+     * Landing page Stok Barang — dashboard dengan activity log & statistik
+     */
+    public function landing()
+    {
+        $totalProducts   = Product::count();
+        $totalCategories = \App\Models\Category::count();
+        $lowStock        = Product::whereColumn('stock', '<=', 'minimum_stock')->count();
+        $totalStock      = Product::sum('stock');
+
+        // Activity log stok terbaru
+        $activityLogs = StockHistory::with('product')
+            ->latest()
+            ->take(20)
+            ->get()
+            ->map(function ($log) {
+                return [
+                    'icon'  => $log->type === 'masuk' ? '📦' : '🛒',
+                    'label' => $log->type === 'masuk'
+                        ? "Stok masuk: {$log->product?->name} +{$log->quantity}"
+                        : "Barang keluar: {$log->product?->name} -{$log->quantity}",
+                    'time'  => $log->created_at,
+                    'color' => $log->type === 'masuk' ? '#4ade80' : '#fb923c',
+                ];
+            });
+
+        // Stok menipis untuk ditampilkan
+        $lowStockProducts = Product::whereColumn('stock', '<=', 'minimum_stock')
+            ->with('category')->take(5)->get();
+
+        return view('products.landing', compact(
+            'totalProducts', 'totalCategories', 'lowStock',
+            'totalStock', 'activityLogs', 'lowStockProducts'
+        ));
+    }
+
+    /**
+     * Tabel daftar stok barang (halaman lama)
+     */
     public function index(Request $request)
     {
         $search = $request->search;
@@ -68,13 +107,15 @@ class ProductController extends Controller
             'unit'           => $request->unit,
         ]);
 
-        StockHistory::create([
-            'product_id' => $product->id,
-            'type'       => 'masuk',
-            'quantity'   => $request->stock,
-        ]);
+        StockHistory::log(
+            $product->id,
+            'masuk',
+            $request->stock,
+            "Produk baru ditambahkan dengan stok awal {$request->stock}",
+            'manual_add'
+        );
 
-        return redirect()->route('products.index')
+        return redirect()->route('products.list')
             ->with('success', 'Produk berhasil ditambahkan!');
     }
 
@@ -103,10 +144,15 @@ class ProductController extends Controller
 
         $profit = $request->selling_price - $request->purchase_price;
 
+        // Catat perubahan stok jika berbeda
+        $oldStock  = $product->stock;
+        $newStock  = (int) $request->stock;
+        $stockDiff = $newStock - $oldStock;
+
         $product->update([
             'category_id'    => $request->category_id,
             'name'           => $request->name,
-            'stock'          => $request->stock,
+            'stock'          => $newStock,
             'minimum_stock'  => $request->minimum_stock,
             'price'          => $request->selling_price,
             'purchase_price' => $request->purchase_price,
@@ -115,14 +161,25 @@ class ProductController extends Controller
             'unit'           => $request->unit,
         ]);
 
-        return redirect()->route('products.index')
+        // Catat history jika stok berubah
+        if ($stockDiff !== 0) {
+            $type  = $stockDiff > 0 ? 'masuk' : 'keluar';
+            $qty   = abs($stockDiff);
+            $notes = $stockDiff > 0
+                ? "Edit manual: stok ditambah {$qty} (dari {$oldStock} → {$newStock})"
+                : "Edit manual: stok dikurangi {$qty} (dari {$oldStock} → {$newStock})";
+
+            StockHistory::log($product->id, $type, $qty, $notes, 'manual_edit');
+        }
+
+        return redirect()->route('products.list')
             ->with('success', 'Produk berhasil diupdate!');
     }
 
     public function destroy(Product $product)
     {
         $product->delete();
-        return redirect()->route('products.index')
+        return redirect()->route('products.list')
             ->with('success', 'Produk berhasil dihapus!');
     }
 }

@@ -4,13 +4,24 @@
     .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; }
     .page-title { font-size:1.75rem; font-weight:700; color:white; }
     .btn-green { background:linear-gradient(135deg,#22c55e,#16a34a); color:white; border:none; padding:0.75rem 2rem; border-radius:10px; font-weight:700; font-size:1rem; cursor:pointer; text-decoration:none; display:inline-block; transition:opacity 0.2s; box-shadow:0 4px 15px rgba(34,197,94,0.3); }
-    .btn-green:hover { opacity:0.9; transform:translateY(-1px); }
+    .btn-green:hover { opacity:0.9; }
     .btn-blue { background:linear-gradient(135deg,#3b82f6,#2563eb); color:white; border:none; padding:0.6rem 1.25rem; border-radius:8px; font-weight:600; font-size:0.9rem; cursor:pointer; text-decoration:none; display:inline-block; }
-    .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.25rem; margin-bottom:1.75rem; }
-    .stat-card { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:1.5rem; display:flex; align-items:center; gap:1rem; }
+
+    /* Stat grid: card pemasukan (lebar) + 2 card kecil */
+    .stat-grid { display:grid; grid-template-columns:2fr 1fr 1fr; gap:1.25rem; margin-bottom:1.75rem; }
+    .stat-card { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:1.5rem; }
+    .stat-card-row { display:flex; align-items:center; gap:1rem; }
     .stat-icon { width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
     .stat-label { font-size:0.8rem; color:rgba(255,255,255,0.5); margin-bottom:0.25rem; }
     .stat-value { font-size:1.6rem; font-weight:700; color:white; }
+
+    /* Card pemasukan gabungan */
+    .income-card { background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.3); border-radius:14px; padding:1.5rem; }
+    .income-divider { width:1px; background:rgba(255,255,255,0.1); margin:0 1.25rem; align-self:stretch; }
+    .income-detail-btn { display:inline-flex; align-items:center; gap:0.4rem; margin-top:0.85rem; background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); padding:0.4rem 0.9rem; border-radius:7px; font-size:0.78rem; font-weight:600; text-decoration:none; transition:all 0.2s; }
+    .income-detail-btn:hover { background:rgba(34,197,94,0.3); }
+
+    /* Table */
     .table-card { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:14px; overflow:hidden; }
     .table-card table { width:100%; border-collapse:collapse; }
     .table-card thead { background:rgba(34,197,94,0.2); }
@@ -20,7 +31,9 @@
     .table-card tr:hover td { background:rgba(255,255,255,0.03); }
     .trx-code { font-family:monospace; color:#4ade80; font-weight:600; }
     .empty-state { text-align:center; padding:4rem; color:rgba(255,255,255,0.3); }
-    @media(max-width:768px){ .stat-grid{grid-template-columns:1fr;} }
+
+    @media(max-width:900px){ .stat-grid{grid-template-columns:1fr 1fr;} .income-card{grid-column:1/-1;} }
+    @media(max-width:600px){ .stat-grid{grid-template-columns:1fr;} }
 </style>
 
 <div class="page">
@@ -37,57 +50,90 @@
 
     <!-- Statistik -->
     <div class="stat-grid">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:rgba(34,197,94,0.2);">
-                <svg width="26" height="26" fill="none" stroke="#4ade80" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
+
+        <!-- Card Gabungan: Total Pemasukan + Pemasukan Bersih -->
+        <div class="income-card">
+            <div style="display:flex; align-items:stretch; gap:0;">
+
+                <!-- Total Pemasukan -->
+                <div style="flex:1;">
+                    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
+                        <div class="stat-icon" style="background:rgba(34,197,94,0.2);">
+                            <svg width="24" height="24" fill="none" stroke="#4ade80" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-label">Total Pemasukan (Kotor)</div>
+                            <div class="stat-value" style="color:#4ade80; font-size:1.4rem;">Rp {{ number_format($totalToday, 0, ',', '.') }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="income-divider"></div>
+
+                <!-- Pemasukan Bersih -->
+                <div style="flex:1;">
+                    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
+                        <div class="stat-icon" style="background:rgba(34,197,94,0.15);">
+                            <svg width="24" height="24" fill="none" stroke="#4ade80" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-label">Pemasukan Bersih</div>
+                            <div style="font-size:0.7rem; color:rgba(255,255,255,0.3); margin-bottom:0.15rem;">Harga Jual − Harga Beli</div>
+                            <div class="stat-value" style="color:{{ $netIncome >= 0 ? '#4ade80' : '#f87171' }}; font-size:1.4rem;">
+                                Rp {{ number_format($netIncome, 0, ',', '.') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <div>
-                <div class="stat-label">Total Pemasukan</div>
-                <div class="stat-value" style="color:#4ade80;">Rp {{ number_format($totalToday, 0, ',', '.') }}</div>
+
+            <!-- Tombol Detail Pemasukan -->
+            <div style="border-top:1px solid rgba(34,197,94,0.15); margin-top:0.85rem; padding-top:0.85rem;">
+                <a href="{{ route('cashier.income.history') }}" class="income-detail-btn">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    Detail Pemasukan Harian →
+                </a>
             </div>
         </div>
 
-        <!-- Pemasukan Bersih -->
-        <div class="stat-card" style="border:1px solid rgba(34,197,94,0.4);">
-            <div class="stat-icon" style="background:rgba(34,197,94,0.15);">
-                <svg width="26" height="26" fill="none" stroke="#4ade80" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                </svg>
-            </div>
-            <div>
-                <div class="stat-label">Pemasukan Bersih</div>
-                <div style="font-size:0.72rem; color:rgba(255,255,255,0.35); margin-bottom:0.2rem;"></div>
-                <div class="stat-value" style="color:{{ $netIncome >= 0 ? '#4ade80' : '#f87171' }};">
-                    Rp {{ number_format($netIncome, 0, ',', '.') }}
+        <!-- Total Transaksi -->
+        <div class="stat-card">
+            <div class="stat-card-row">
+                <div class="stat-icon" style="background:rgba(59,130,246,0.2);">
+                    <svg width="26" height="26" fill="none" stroke="#60a5fa" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="stat-label">Total Transaksi</div>
+                    <div class="stat-value" style="color:#60a5fa;">{{ $totalTrxToday }}</div>
                 </div>
             </div>
         </div>
 
+        <!-- Total Item Terjual -->
         <div class="stat-card">
-            <div class="stat-icon" style="background:rgba(59,130,246,0.2);">
-                <svg width="26" height="26" fill="none" stroke="#60a5fa" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
-            </div>
-            <div>
-                <div class="stat-label">Total Transaksi</div>
-                <div class="stat-value" style="color:#60a5fa;">{{ $totalTrxToday }}</div>
+            <div class="stat-card-row">
+                <div class="stat-icon" style="background:rgba(249,115,22,0.2);">
+                    <svg width="26" height="26" fill="none" stroke="#fb923c" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="stat-label">Total Item Terjual</div>
+                    <div class="stat-value" style="color:#fb923c;">{{ $todayTransactions->sum('total_items') }}</div>
+                </div>
             </div>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon" style="background:rgba(249,115,22,0.2);">
-                <svg width="26" height="26" fill="none" stroke="#fb923c" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                </svg>
-            </div>
-            <div>
-                <div class="stat-label">Total Item Terjual</div>
-                <div class="stat-value" style="color:#fb923c;">{{ $todayTransactions->sum('total_items') }}</div>
-            </div>
-        </div>
     </div>
 
     <!-- Tabel Transaksi Hari Ini -->

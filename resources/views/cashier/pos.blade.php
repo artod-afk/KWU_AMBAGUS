@@ -391,7 +391,7 @@ function checkout() {
     const btn = document.getElementById('checkoutBtn');
     btn.disabled = true; btn.textContent = '⏳ Memproses...';
 
-    fetch('{{ route("cashier.checkout") }}', {
+    fetch('/cashier/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
         body: JSON.stringify({ items, paid })

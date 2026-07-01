@@ -79,3 +79,8 @@ ORDER BY ORDINAL_POSITION;
 
 SELECT 'tables created:' AS info;
 SHOW TABLES;
+
+-- STEP 6: Tambah kolom notes dan source ke stock_histories
+ALTER TABLE `stock_histories`
+    ADD COLUMN IF NOT EXISTS `notes` VARCHAR(255) NULL AFTER `quantity`,
+    ADD COLUMN IF NOT EXISTS `source` VARCHAR(50) NOT NULL DEFAULT 'manual_add' AFTER `notes`;
